@@ -27,7 +27,7 @@ with open('CHANGES.rst') as f:
     CHANGES = f.read()
 
 setup(name='repoze.sendmail',
-      version = '4.1moriyoshi0',
+      version = '4.1moriyoshi1',
       url='http://www.repoze.org',
       license='ZPL 2.1',
       description='Repoze Sendmail',
