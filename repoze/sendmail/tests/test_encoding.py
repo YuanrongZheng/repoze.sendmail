@@ -278,3 +278,21 @@ class TestEncoding(unittest.TestCase):
         self.assertEqual(
             encoded.count(quopri.encodestring(plain_string.encode('latin_1'))),
             2)
+
+    def test_header_instance_as_message_item(self):
+        from repoze.sendmail._compat import b
+        from email.header import Header
+        message = self._makeMessage()
+        message['Subject'] = 'subject test'
+        message['To'] =Header()
+        message['To'].append('\u30c6\u30b9\u30c8', 'iso-2022-jp')
+        message['To'].append('<test@example.com>')
+        message.set_payload('hello')
+
+        encoded = self._callFUT(message)
+
+        print('*' * 100)
+        print(encoded)
+        self.assertTrue(b('subject test') in encoded)
+        self.assertTrue(b('=?iso-2022-jp?b?GyRCJUYlOSVIGyhC?=') in encoded)
+

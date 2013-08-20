@@ -40,34 +40,35 @@ def cleanup_message(message,
     state that it can be safely encoded to ascii.
     """
     for key, value in message.items():
-        if key.lower() in addr_headers:
-            addrs = []
-            for name, addr in utils.getaddresses([value]):
-                best, encoded = best_charset(name)
-                if PY_2:
-                    name = encoded
-                name = header.Header(
-                    name, charset=best, header_name=key).encode()
-                addrs.append(utils.formataddr((name, addr)))
-            value = ', '.join(addrs)
-            message.replace_header(key, value)
-        if key.lower() in param_headers:
-            for param_key, param_value in message.get_params(header=key):
-                if param_value:
-                    best, encoded = best_charset(param_value)
+        if isinstance(value, text_type):
+            if key.lower() in addr_headers:
+                addrs = []
+                for name, addr in utils.getaddresses([value]):
+                    best, encoded = best_charset(name)
                     if PY_2:
-                        param_value = encoded
-                    if best == 'ascii':
-                        best = None
-                    message.set_param(param_key, param_value,
-                                      header=key, charset=best)
-        else:
-            best, encoded = best_charset(value)
-            if PY_2:
-                value = encoded
-            value = header.Header(
-                value, charset=best, header_name=key).encode()
-            message.replace_header(key, value)
+                        name = encoded
+                    name = header.Header(
+                        name, charset=best, header_name=key).encode()
+                    addrs.append(utils.formataddr((name, addr)))
+                value = ', '.join(addrs)
+                message.replace_header(key, value)
+            if key.lower() in param_headers:
+                for param_key, param_value in message.get_params(header=key):
+                    if param_value:
+                        best, encoded = best_charset(param_value)
+                        if PY_2:
+                            param_value = encoded
+                        if best == 'ascii':
+                            best = None
+                        message.set_param(param_key, param_value,
+                                          header=key, charset=best)
+            else:
+                best, encoded = best_charset(value)
+                if PY_2:
+                    value = encoded
+                value = header.Header(
+                    value, charset=best, header_name=key).encode()
+                message.replace_header(key, value)
 
     payload = message.get_payload()
     if payload and isinstance(payload, text_type):
